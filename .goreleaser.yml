@@ -1,0 +1,49 @@
+env:
+  - CGO_ENABLED=0
+
+before:
+  hooks:
+    - make test
+    - go generate ./...
+    - go mod tidy
+    - go mod download
+
+builds:
+  - id: nvdexp
+    main: ./cmd/nvdexp
+    binary: nvdexp
+    targets:
+      - linux_amd64
+      - windows_amd64
+      - darwin_amd64
+
+archives:
+
+checksum:
+  algorithm: sha256
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+nfpms:
+  -
+    id: nvdexplorer
+    package_name: nvdexplorer
+    file_name_template: "nvdexplorer_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    builds:
+      - nvdexp
+    homepage: https://github.com/na4ma4/nvdexplorer
+    maintainer: na4ma4 <na4ma4@users.noreply.github.com>
+    description: Remote service check agent (agent)
+    formats:
+      - apk
+      - deb
+    bindir: /usr/bin
