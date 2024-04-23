@@ -1,5 +1,4 @@
-GO_MATRIX_OS ?= darwin linux windows
-GO_MATRIX_ARCH ?= amd64
+GO_MATRIX ?= darwin/arm64 darwin/amd64 linux/arm64 linux/amd64
 
 APP_DATE ?= $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 GIT_HASH ?= $(shell git show -s --format=%h)
@@ -14,6 +13,10 @@ endif
 
 -include .makefiles/Makefile
 -include .makefiles/pkg/go/v1/Makefile
+-include .makefiles/ext/na4ma4/lib/golangci-lint/v1/Makefile
+
+.makefiles/ext/na4ma4/%: .makefiles/Makefile
+	@curl -sfL https://raw.githubusercontent.com/na4ma4/makefiles-ext/main/v1/install | bash /dev/stdin "$@"
 
 .makefiles/%:
 	@curl -sfL https://makefiles.dev/v1 | bash /dev/stdin "$@"
@@ -33,64 +36,3 @@ install: $(REQ) $(_SRC) | $(USE)
 
 	CGO_ENABLED=$(CGO_ENABLED) GOOS="$(OS)" GOARCH="$(ARCH)" go install $(ARGS) "./cmd/..."
 
-
-######################
-# Custom
-######################
-
-artifacts/protobuf/go.proto_paths.jq: artifacts/protobuf/go.proto_paths
-	-@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
-	jq -Rn 'inputs | select(.)' < "$(^)" > "$(@)"
-
-.vscode/settings.json: artifacts/protobuf/go.proto_paths.jq
-	-@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
-	$(if $(shell cat "$(@)" 2>/dev/null),cat "$(@)",echo '{}') | jq --slurpfile po "$(<)" '.protoc.options=$$po' > "$(@).tmp"
-	mv "$(@).tmp" "$(@)"
-
-
-######################
-# Linting
-######################
-
-MISSPELL := artifacts/bin/misspell
-$(MISSPELL):
-	-@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
-	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get $(_MODFILEARG) github.com/client9/misspell/cmd/misspell
-
-GOLINT := artifacts/bin/golint
-$(GOLINT):
-	-@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
-	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get $(_MODFILEARG) golang.org/x/lint/golint
-
-GOLANGCILINT := artifacts/bin/golangci-lint
-$(GOLANGCILINT):
-	-@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(MF_PROJECT_ROOT)/$(@D)" v1.33.0
-
-STATICCHECK := artifacts/bin/staticcheck
-$(STATICCHECK):
-	-@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
-	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get $(_MODFILEARG) honnef.co/go/tools/cmd/staticcheck
-
-artifacts/cover/staticheck/unused-graph.txt: $(STATICCHECK) $(GO_SOURCE_FILES)
-	-@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
-	$(STATICCHECK) -debug.unused-graph "$(@)" ./...
-	# cat "$(@)"
-
-.PHONY: lint
-lint:: $(GOLINT) $(MISSPELL) $(GOLANGCILINT) $(STATICCHECK) artifacts/cover/staticheck/unused-graph.txt
-	go vet ./...
-	$(GOLINT) -set_exit_status ./...
-	$(MISSPELL) -w -error -locale UK ./...
-	$(GOLANGCILINT) run --enable-all --disable 'exhaustivestruct,paralleltest' ./...
-	$(STATICCHECK) -fail "all,-U1001" ./...
-
-ci:: lint
-
-
-######################
-# Preload Tools
-######################
-
-.PHONY: tools
-tools: $(MISSPELL) $(GOLINT) $(GOLANGCILINT) $(STATICCHECK) $(CFSSL) $(CFSSLJSON)

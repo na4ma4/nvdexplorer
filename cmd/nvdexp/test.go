@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// nolint: gochecknoglobals // cobra uses globals in main
 var cmdTest = &cobra.Command{
 	Use:   "test",
 	Short: "Test Command",
@@ -14,15 +13,13 @@ var cmdTest = &cobra.Command{
 	Args:  cobra.NoArgs,
 }
 
-// nolint:gochecknoinits // init is used in main for cobra
 func init() {
 	rootCmd.AddCommand(cmdTest)
 }
 
-func testCommand(cmd *cobra.Command, args []string) {
+func testCommand(_ *cobra.Command, _ []string) {
 	cfg := config.NewViperConfigFromViper(viper.GetViper(), "nvdexplorer")
 
 	logger, _ := cfg.ZapConfig().Build()
-	defer logger.Sync() //nolint: errcheck
-
+	defer logger.Sync()
 }

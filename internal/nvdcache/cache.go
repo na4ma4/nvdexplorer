@@ -14,7 +14,10 @@ import (
 	"github.com/na4ma4/config"
 )
 
-const baseURL = "https://nvd.nist.gov/feeds/json/cve/1.1/"
+const (
+	baseURL            = "https://nvd.nist.gov/feeds/json/cve/1.1/"
+	defaultHTTPTimeout = 10 * time.Second
+)
 
 type NVD struct {
 	cfg      config.Conf
@@ -74,43 +77,71 @@ func (n *NVD) getURL(ctx context.Context, u *url.URL) (*http.Response, error) {
 	}
 
 	c := &http.Client{
-		Timeout: time.Second * 10,
+		Timeout: defaultHTTPTimeout,
 	}
 
 	return c.Do(r)
 }
 
+//nolint:nestif // TODO cleanup.
 func (n *NVD) Download(ctx context.Context) error {
-	lmd, err := n.LiveMeta(ctx)
-	if err != nil {
-		return err
+	var lmd *Metadata
+	{
+		var err error
+		lmd, err = n.LiveMeta(ctx)
+		if err != nil {
+			return err
+		}
 	}
 
-	md, err := n.CacheMeta()
+	var md *Metadata
+	{
+		var err error
+		md, err = n.CacheMeta()
+		if err != nil {
+			return err
+		}
+	}
 
 	if !md.Compare(lmd) {
 		log.Println("Metadata does not match, need to download")
 
 		u := n.baseURL.ResolveReference(&url.URL{Path: n.fileData})
 		log.Printf("URL: %s", u.String())
-		r, err := n.getURL(ctx, u)
-		if err != nil {
-			return err
+
+		var r *http.Response
+		var f *os.File
+		{
+			var err error
+			r, err = n.getURL(ctx, u)
+			if err != nil {
+				return err
+			}
+			defer r.Body.Close()
 		}
-		defer r.Body.Close()
-		f, err := os.Create(n.fileNameData())
-		defer f.Close()
-		if err != nil {
-			return err
+
+		{
+			var err error
+			f, err = os.Create(n.fileNameData())
+			if err != nil {
+				return err
+			}
+			defer f.Close()
 		}
+
 		if _, err := io.Copy(f, r.Body); err != nil {
 			return err
 		}
-		f, err = os.Create(n.fileNameMeta())
-		defer f.Close()
-		if err != nil {
-			return err
+
+		{
+			var err error
+			f, err = os.Create(n.fileNameMeta())
+			if err != nil {
+				return err
+			}
+			defer f.Close()
 		}
+
 		if err := lmd.Write(f); err != nil {
 			return err
 		}

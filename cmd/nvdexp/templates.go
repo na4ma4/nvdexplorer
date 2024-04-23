@@ -8,11 +8,12 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/timestamp"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // basicFunctions are the set of initial functions provided to every template.
-// nolint: gochecknoglobals // for reusability and mostly because it was copy/pasted from docker/cli
+//
+//nolint:unused // templating functions.
 var basicFunctions = template.FuncMap{
 	"json": func(v interface{}) string {
 		buf := &bytes.Buffer{}
@@ -39,16 +40,22 @@ var basicFunctions = template.FuncMap{
 }
 
 // padToLength adds whitespace to pad to the supplied length.
+//
+//nolint:unused // is used by basicFunctions.
 func padToMaxLength(source string) string {
 	return fmt.Sprintf(fmt.Sprintf("%%-%ds", 0), source)
 }
 
 // padToLength adds whitespace to pad to the supplied length.
+//
+//nolint:unused // is used by basicFunctions.
 func padToLength(source string, prefix int) string {
 	return fmt.Sprintf(fmt.Sprintf("%%-%ds", prefix), source)
 }
 
 // padWithSpace adds whitespace to the input if the input is non-empty.
+//
+//nolint:unused // is used by basicFunctions.
 func padWithSpace(source string, prefix, suffix int) string {
 	if source == "" {
 		return source
@@ -58,13 +65,15 @@ func padWithSpace(source string, prefix, suffix int) string {
 }
 
 // timeFormat returns time in RFC3339 format.
+//
+//nolint:unused // is used by basicFunctions.
 func timeFormat(source interface{}) string {
 	switch s := source.(type) {
 	case time.Time:
 		return s.Format(time.RFC3339)
-	case timestamp.Timestamp:
+	case timestamppb.Timestamp:
 		return s.AsTime().Format(time.RFC3339)
-	case *timestamp.Timestamp:
+	case *timestamppb.Timestamp:
 		return s.AsTime().Format(time.RFC3339)
 	default:
 		return fmt.Sprintf("%s", source)
@@ -72,11 +81,15 @@ func timeFormat(source interface{}) string {
 }
 
 // dateFormat returns date in YYYY-MM-DD format.
+//
+//nolint:unused // is used by basicFunctions.
 func dateFormat(source interface{}) string {
 	switch s := source.(type) {
 	case time.Time:
 		return s.Format("2006-01-02")
-	case timestamp.Timestamp:
+	case timestamppb.Timestamp:
+		return s.AsTime().Format("2006-01-02")
+	case *timestamppb.Timestamp:
 		return s.AsTime().Format("2006-01-02")
 	default:
 		return fmt.Sprintf("%q", source)
@@ -84,6 +97,8 @@ func dateFormat(source interface{}) string {
 }
 
 // stringTrueFalse returns "true" or "false" for boolean input.
+//
+//nolint:unused // is used by basicFunctions.
 func stringTrueFalse(source bool) string {
 	if source {
 		return "true"
@@ -93,6 +108,8 @@ func stringTrueFalse(source bool) string {
 }
 
 // stringYesNo returns "yes" or "no" for boolean input.
+//
+//nolint:unused // is used by basicFunctions.
 func stringYesNo(source bool) string {
 	if source {
 		return "yes"
@@ -102,11 +119,15 @@ func stringYesNo(source bool) string {
 }
 
 // stringTab returns a tab character.
+//
+//nolint:unused // is used by basicFunctions.
 func stringTab() string {
 	return "\t"
 }
 
 // truncateWithLength truncates the source string up to the length provided by the input.
+//
+//nolint:unused // is used by basicFunctions.
 func truncateWithLength(source string, length int) string {
 	if len(source) < length {
 		return source

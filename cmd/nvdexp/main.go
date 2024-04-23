@@ -6,12 +6,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-//nolint: gochecknoglobals // cobra uses globals in main
 var rootCmd = &cobra.Command{
 	Use: "nvdexp",
 }
 
-//nolint:gochecknoinits // init is used in main for cobra
 func init() {
 	cobra.OnInitialize(mainconfig.ConfigInit)
 
