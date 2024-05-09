@@ -51,8 +51,8 @@ func NewMetadataFromReader(in io.Reader) *Metadata {
 	scanner := bufio.NewScanner(buf)
 
 	for scanner.Scan() {
-		sp := strings.SplitN(scanner.Text(), ":", 2) //nolint:gomnd // key-value.
-		if len(sp) == 2 {                            //nolint:gomnd // key-value.
+		sp := strings.SplitN(scanner.Text(), ":", 2) //nolint:mnd // key-value.
+		if len(sp) == 2 {                            //nolint:mnd // key-value.
 			parseLine(o, sp[0], sp[1])
 		}
 	}
