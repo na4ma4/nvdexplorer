@@ -6,7 +6,7 @@ toolchain go1.22.3
 
 require (
 	github.com/na4ma4/config v1.0.1
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/text v0.16.0
