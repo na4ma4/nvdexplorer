@@ -2,8 +2,6 @@ module github.com/na4ma4/nvdexplorer/magefiles
 
 go 1.22.2
 
-toolchain go1.22.2
-
 require (
 	github.com/dosquad/mage v0.1.24
 	github.com/magefile/mage v1.15.0
