@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/dosquad/go-cliversion"
 	"github.com/na4ma4/nvdexplorer/internal/mainconfig"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -16,6 +17,8 @@ func init() {
 	rootCmd.PersistentFlags().BoolP("debug", "d", false, "Debug output")
 	_ = viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 	_ = viper.BindEnv("debug", "DEBUG")
+
+	rootCmd.Version = cliversion.Get().VersionString()
 }
 
 func main() {
