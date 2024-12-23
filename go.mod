@@ -3,13 +3,13 @@ module github.com/na4ma4/nvdexplorer
 go 1.22.2
 
 require (
-	github.com/dosquad/go-cliversion v0.1.9
+	github.com/dosquad/go-cliversion v0.2.1
 	github.com/na4ma4/config v1.0.2
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/text v0.21.0
-	google.golang.org/protobuf v1.35.2
+	google.golang.org/protobuf v1.36.0
 )
 
 require (
