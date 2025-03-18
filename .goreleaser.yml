@@ -69,7 +69,7 @@ nfpms:
     id: nvdexplorer
     package_name: nvdexplorer
     file_name_template: "nvdexplorer_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
-    builds:
+    ids:
       - nvdexp
     homepage: https://github.com/na4ma4/nvdexplorer
     maintainer: na4ma4 <na4ma4@users.noreply.github.com>

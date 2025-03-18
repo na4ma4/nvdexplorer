@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -60,7 +59,7 @@ func (n *NVD) CacheMeta() (*Metadata, error) {
 
 func (n *NVD) LiveMeta(ctx context.Context) (*Metadata, error) {
 	u := n.baseURL.ResolveReference(&url.URL{Path: n.fileMeta})
-	log.Printf("URL: %s", u.String())
+	// log.Printf("URL: %s", u.String())
 	r, err := n.getURL(ctx, u)
 	if err != nil {
 		return nil, err
@@ -104,10 +103,10 @@ func (n *NVD) Download(ctx context.Context) error {
 	}
 
 	if !md.Compare(lmd) {
-		log.Println("Metadata does not match, need to download")
+		// log.Println("Metadata does not match, need to download")
 
 		u := n.baseURL.ResolveReference(&url.URL{Path: n.fileData})
-		log.Printf("URL: %s", u.String())
+		// log.Printf("URL: %s", u.String())
 
 		var r *http.Response
 		var f *os.File
@@ -145,8 +144,8 @@ func (n *NVD) Download(ctx context.Context) error {
 		if err := lmd.Write(f); err != nil {
 			return err
 		}
-	} else {
-		log.Println("Metadata matches, no need to download")
+		// } else {
+		// log.Println("Metadata matches, no need to download")
 	}
 
 	return nil
